@@ -28,9 +28,9 @@
     --bg-hover: #1e242e;
     --border-primary: #343b45;
     --border-accent: #9a9dff;
-    --text-primary: #172033;
-    --text-secondary: #20242d;
-    --text-muted: #8e97a6;
+    --text-primary: #e6ebf5;
+    --text-secondary: #c5cfdd;
+    --text-muted: #97a1b2;
     --accent-blue: #9a9dff;
     --accent-green: #00ab93;
     --accent-orange: #f47700;
@@ -49,6 +49,7 @@
     --sidebar-width: 220px;
     --sidebar-collapsed-width: 52px;
     --comments-width: 288px;
+    --comments-collapsed-width: 52px;
     --split-gap: 8px;
     --topbar-height: 48px;
     --topbar-pill-height: 34px;
@@ -61,27 +62,27 @@
   }
 
   html[data-theme="light"] {
-    --bg-primary: #f3f5fb;
-    --bg-secondary: rgba(255, 255, 255, 0.82);
-    --bg-tertiary: #e7ebf5;
-    --bg-hover: #dbe2f2;
-    --border-primary: rgba(74, 91, 130, 0.16);
+    --bg-primary: #f5f4f2;
+    --bg-secondary: rgba(255, 255, 254, 0.84);
+    --bg-tertiary: #ebe9e4;
+    --bg-hover: #e1ddd6;
+    --border-primary: rgba(92, 93, 103, 0.14);
     --border-accent: #4f7cff;
-    --text-primary: #172033;
-    --text-secondary: #20242d;
-    --text-muted: #7a86a3;
+    --text-primary: #232934;
+    --text-secondary: #424956;
+    --text-muted: #7a828f;
     --accent-blue: #4f7cff;
     --accent-green: #119c6b;
     --accent-orange: #b9721f;
     --accent-red: #d64565;
     --accent-purple: #7c58e6;
     --accent-cyan: #0d8db3;
-    --comment-bg: rgba(245, 247, 252, 0.95);
-    --app-glow: radial-gradient(circle at top left, rgba(79, 124, 255, 0.12), transparent 34%), radial-gradient(circle at top right, rgba(124, 88, 230, 0.08), transparent 28%), linear-gradient(180deg, #f9fbff 0%, #eef2fb 100%);
-    --surface-elevated: rgba(255, 255, 255, 0.78);
-    --surface-panel: rgba(255, 255, 255, 0.88);
-    --surface-soft: rgba(79, 124, 255, 0.05);
-    --surface-strong: rgba(79, 124, 255, 0.1);
+    --comment-bg: rgba(249, 249, 247, 0.95);
+    --app-glow: radial-gradient(circle at top left, rgba(79, 124, 255, 0.06), transparent 34%), radial-gradient(circle at top right, rgba(124, 88, 230, 0.03), transparent 28%), linear-gradient(180deg, #fbfbfa 0%, #f1f0ed 100%);
+    --surface-elevated: rgba(255, 255, 254, 0.8);
+    --surface-panel: rgba(255, 255, 253, 0.88);
+    --surface-soft: rgba(120, 108, 90, 0.035);
+    --surface-strong: rgba(120, 108, 90, 0.07);
     --shadow-sm: 0 8px 20px rgba(60, 79, 121, 0.08);
     --shadow-md: 0 12px 28px rgba(60, 79, 121, 0.1);
     --shadow-lg: 0 16px 38px rgba(60, 79, 121, 0.12);
@@ -588,14 +589,73 @@
     border: 1px solid var(--border-primary);
     border-radius: var(--radius-lg);
     box-shadow: var(--shadow-md);
-    overflow-y: auto;
+    overflow: hidden;
     flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .comments-pane.collapsed {
+    flex: 0 0 var(--comments-collapsed-width);
+    min-width: var(--comments-collapsed-width);
   }
   body.focus-mode .comments-pane {
     display: none;
   }
+  .comments-collapsed-rail {
+    display: none;
+    align-items: center;
+    justify-content: flex-start;
+    flex-direction: column;
+    padding: 10px 6px;
+    height: 100%;
+  }
+  .comments-pane.collapsed .comments-collapsed-rail {
+    display: flex;
+  }
+  .comments-expanded-shell {
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    height: 100%;
+  }
+  .comments-pane.collapsed .comments-expanded-shell {
+    display: none;
+  }
+  .comments-pane-header-row {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 8px 0;
+  }
   .comments-pane-inner {
     padding: 8px;
+    overflow-y: auto;
+    min-height: 0;
+  }
+  .comments-collapse-btn,
+  .comments-rail-btn {
+    width: 32px;
+    height: 32px;
+    border: none;
+    border-radius: 10px;
+    background: var(--surface-soft);
+    color: var(--text-secondary);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: background 0.18s ease, color 0.18s ease;
+  }
+  .comments-collapse-btn:hover,
+  .comments-rail-btn:hover {
+    background: var(--surface-strong);
+    color: var(--text-primary);
+  }
+  .comments-collapse-btn svg,
+  .comments-rail-btn svg {
+    width: 16px;
+    height: 16px;
   }
 
   /* ===== MARKDOWN RENDERED CONTENT ===== */
@@ -1679,9 +1739,25 @@
             </div>
           </div>
           <div class="comments-pane" id="commentsPane">
-            <div class="comments-pane-inner">
-              <div class="comments-pane-header" id="commentsPaneHeader">Comments (0)</div>
-              <div id="commentsList"></div>
+            <div class="comments-collapsed-rail" id="commentsCollapsedRail" aria-label="Collapsed comments navigation">
+              <button class="comments-rail-btn" type="button" onclick="toggleCommentsCollapse(false)" title="Expand comments" aria-label="Expand comments">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <polyline points="9 18 15 12 9 6"></polyline>
+                </svg>
+              </button>
+            </div>
+            <div class="comments-expanded-shell" id="commentsExpandedShell">
+              <div class="comments-pane-header-row">
+                <div class="comments-pane-header" id="commentsPaneHeader">Comments (0)</div>
+                <button class="comments-collapse-btn" type="button" onclick="toggleCommentsCollapse()" title="Collapse comments" aria-label="Collapse comments">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="15 18 9 12 15 6"></polyline>
+                  </svg>
+                </button>
+              </div>
+              <div class="comments-pane-inner">
+                <div id="commentsList"></div>
+              </div>
             </div>
           </div>
         </div>
@@ -1733,8 +1809,17 @@ let activeComposerAnchor = null;
 let eventSource = null;
 let currentSidebarView = localStorage.getItem('sidebar-view') || 'plans';
 let isSidebarCollapsed = localStorage.getItem('sidebar-collapsed') === 'true';
+const commentsCollapsePreferenceVersion = '2';
+const storedCommentsCollapsePreferenceVersion = localStorage.getItem('comments-collapsed-pref-version');
+if (storedCommentsCollapsePreferenceVersion !== commentsCollapsePreferenceVersion) {
+  localStorage.removeItem('comments-collapsed');
+  localStorage.setItem('comments-collapsed-pref-version', commentsCollapsePreferenceVersion);
+}
+const storedCommentsCollapsed = localStorage.getItem('comments-collapsed');
+let isCommentsCollapsed = storedCommentsCollapsed === null ? true : storedCommentsCollapsed === 'true';
 let isFocusMode = localStorage.getItem('focus-mode') === 'true';
 let sidebarCollapsedBeforeFocus = isSidebarCollapsed;
+let commentsCollapsedBeforeFocus = isCommentsCollapsed;
 let lastPlanListSignature = '';
 let lastRenderedContentSignature = '';
 let lastRenderedCommentsSignature = '';
@@ -1751,7 +1836,7 @@ const THEME_CONFIG = {
   },
   light: {
     hljsUrl: 'res/github.min.css',
-    mermaid: { bg: '#f0f2f5', fg: '#1f2328', line: '#8c959f', accent: '#0969da', surface: '#f6f8fa', border: '#d0d7de' }
+    mermaid: { bg: '#f4f4f2', fg: '#283240', line: '#8d928f', accent: '#4f7cff', surface: '#fbfbf9', border: '#dddeda' }
   }
 };
 
@@ -2412,17 +2497,35 @@ function toggleSidebarCollapse(force) {
   setSidebarCollapsed(next);
 }
 
+function setCommentsCollapsed(collapsed) {
+  isCommentsCollapsed = !!collapsed;
+  localStorage.setItem('comments-collapsed', String(isCommentsCollapsed));
+  document.getElementById('commentsPane').classList.toggle('collapsed', isCommentsCollapsed);
+
+  if (!isFocusMode) {
+    commentsCollapsedBeforeFocus = isCommentsCollapsed;
+  }
+}
+
+function toggleCommentsCollapse(force) {
+  if (isFocusMode && force !== true) return;
+  const next = typeof force === 'boolean' ? force : !isCommentsCollapsed;
+  setCommentsCollapsed(next);
+}
+
 function setFocusMode(enabled) {
   const nextFocusMode = !!enabled;
 
   if (nextFocusMode && nextFocusMode !== isFocusMode) {
     sidebarCollapsedBeforeFocus = isSidebarCollapsed;
+    commentsCollapsedBeforeFocus = isCommentsCollapsed;
   }
 
   isFocusMode = nextFocusMode;
   localStorage.setItem('focus-mode', String(isFocusMode));
   document.body.classList.toggle('focus-mode', isFocusMode);
   setSidebarCollapsed(isFocusMode ? true : sidebarCollapsedBeforeFocus);
+  setCommentsCollapsed(isFocusMode ? true : commentsCollapsedBeforeFocus);
 
   const toggle = document.getElementById('focusModeToggle');
   if (toggle) {
@@ -2959,6 +3062,7 @@ async function init() {
   applyTheme(localStorage.getItem('theme') || 'dark');
   setSidebarView(currentSidebarView);
   setSidebarCollapsed(isSidebarCollapsed);
+  setCommentsCollapsed(isCommentsCollapsed);
   setFocusMode(isFocusMode);
 
   document.querySelectorAll('[data-sidebar-view]').forEach((btn) => {
