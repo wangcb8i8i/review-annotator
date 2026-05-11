@@ -29,8 +29,8 @@
     --border-primary: #343b45;
     --border-accent: #9a9dff;
     --text-primary: #e6ebf5;
-    --text-secondary: #c5cfdd;
-    --text-muted: #97a1b2;
+    --text-secondary: #d2d9e6;
+    --text-muted: #a5afc0;
     --accent-blue: #9a9dff;
     --accent-green: #00ab93;
     --accent-orange: #f47700;
@@ -57,8 +57,8 @@
     --radius-sm: 12px;
     --radius-md: 18px;
     --radius-lg: 12px;
-    --font-sans: 'SF Mono', 'Cascadia Code', 'Fira Code', 'JetBrains Mono', monospace;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    --font-sans: 'Cascadia Mono', 'SF Mono', 'Consolas', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
+    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
   }
 
   html[data-theme="light"] {
@@ -69,8 +69,8 @@
     --border-primary: rgba(92, 93, 103, 0.14);
     --border-accent: #4f7cff;
     --text-primary: #232934;
-    --text-secondary: #424956;
-    --text-muted: #7a828f;
+    --text-secondary: #3b4658;
+    --text-muted: #6f7c92;
     --accent-blue: #4f7cff;
     --accent-green: #119c6b;
     --accent-orange: #b9721f;
@@ -91,6 +91,9 @@
   html { font-size: 14px; }
   body {
     font-family: var(--font-body);
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
     background: var(--app-glow);
     color: var(--text-primary);
     height: 100vh;
@@ -134,7 +137,7 @@
     border-radius: 999px;
     background: var(--surface-elevated);
     box-shadow: var(--shadow-sm);
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     line-height: 1;
     color: var(--text-secondary);
     white-space: nowrap;
@@ -170,7 +173,7 @@
     background: transparent;
     color: var(--text-primary);
     cursor: pointer;
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     font-family: var(--font-body);
     font-weight: 650;
     line-height: 1;
@@ -263,7 +266,7 @@
     gap: 8px;
   }
   .theme-switch-label {
-    font-size: 0.72rem;
+    font-size: 0.76rem;
     color: var(--text-muted);
     line-height: 1;
     letter-spacing: 0.02em;
@@ -372,7 +375,7 @@
     min-width: 0;
   }
   .sidebar-title {
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     text-transform: uppercase;
     letter-spacing: 0.14em;
     color: var(--text-secondary);
@@ -424,7 +427,7 @@
     background: var(--surface-soft);
     color: var(--text-secondary);
     cursor: pointer;
-    font-size: 0.74rem;
+    font-size: 0.78rem;
     font-family: var(--font-body);
     font-weight: 600;
     transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
@@ -490,7 +493,7 @@
     box-shadow: var(--shadow-sm);
   }
   .plan-item-name {
-    font-size: 0.82rem;
+    font-size: 0.86rem;
     font-weight: 600;
     color: var(--text-primary);
     margin-bottom: 4px;
@@ -499,7 +502,7 @@
     text-overflow: ellipsis;
   }
   .plan-item-meta {
-    font-size: 0.68rem;
+    font-size: 0.72rem;
     color: var(--text-muted);
     display: flex;
     gap: 4px;
@@ -737,7 +740,7 @@
   }
   .md-content code {
     font-family: var(--font-sans);
-    font-size: 0.88em;
+    font-size: 1.0em;
     background: var(--surface-soft);
     padding: 0.14em 0.42em;
     border-radius: 6px;
@@ -760,7 +763,7 @@
     padding: 15px 16px;
     background: transparent !important;
     border: none;
-    font-size: 0.82rem;
+    font-size: 1.0em;
     line-height: 1.65;
     white-space: pre;
   }
@@ -1050,8 +1053,8 @@
     border-radius: 10px;
     color: var(--text-secondary);
     text-decoration: none;
-    font-size: 0.78rem;
-    line-height: 1.35;
+    font-size: 0.88rem;
+    line-height: 1.4;
     cursor: pointer;
     white-space: nowrap;
     overflow: hidden;
@@ -1120,7 +1123,7 @@
 
   /* ===== COMMENTS PANE ===== */
   .comments-pane-header {
-    font-size: 0.76rem;
+    font-size: 0.8rem;
     font-weight: 700;
     margin-bottom: 14px;
     color: var(--text-secondary);
