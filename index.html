@@ -18,6 +18,30 @@
 </script>
 
 <style>
+  @font-face {
+    font-family: 'Preview Sans';
+    src: url('./res/fonts/preview-sans-medium.otf') format('opentype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Preview Mono';
+    src: url('./res/fonts/preview-mono-regular.ttf') format('truetype');
+    font-weight: 400;
+    font-style: normal;
+    font-display: swap;
+  }
+
+  @font-face {
+    font-family: 'Preview Mono';
+    src: url('./res/fonts/preview-mono-medium.ttf') format('truetype');
+    font-weight: 500;
+    font-style: normal;
+    font-display: swap;
+  }
+
   /* ===== RESET & BASE ===== */
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -57,8 +81,9 @@
     --radius-sm: 12px;
     --radius-md: 18px;
     --radius-lg: 12px;
-    --font-sans: 'Cascadia Mono', 'SF Mono', 'Consolas', 'Cascadia Code', 'JetBrains Mono', 'Fira Code', 'Courier New', monospace;
-    --font-body: -apple-system, BlinkMacSystemFont, 'Segoe UI Variable', 'Segoe UI', Inter, Roboto, 'Helvetica Neue', Arial, sans-serif;
+    --font-mono: 'Preview Mono', ui-monospace, 'SFMono-Regular', Consolas, 'Liberation Mono', monospace;
+    --font-body: 'Preview Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', Arial, sans-serif;
+    --font-display: 'Preview Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'PingFang SC', 'Hiragino Sans GB', 'Microsoft YaHei UI', Arial, sans-serif;
   }
 
   html[data-theme="light"] {
@@ -494,7 +519,7 @@
   }
   .plan-item-name {
     font-size: 0.86rem;
-    font-weight: 600;
+    font-weight: 500;
     color: var(--text-primary);
     margin-bottom: 4px;
     white-space: nowrap;
@@ -672,6 +697,7 @@
 
   /* ===== MARKDOWN RENDERED CONTENT ===== */
   .md-content {
+    font-family: var(--font-body);
     font-size: 1rem;
     line-height: 1.72;
     color: var(--text-secondary);
@@ -685,6 +711,7 @@
     margin-bottom: 0;
   }
   .md-content h1 {
+    font-family: var(--font-display);
     font-size: 2.08rem;
     font-weight: 800;
     margin: 0 0 14px;
@@ -695,6 +722,7 @@
     padding: 0;
   }
   .md-content h2 {
+    font-family: var(--font-display);
     font-size: 1.34rem;
     font-weight: 700;
     margin: 32px 0 10px;
@@ -705,6 +733,7 @@
     padding: 0;
   }
   .md-content h3 {
+    font-family: var(--font-display);
     font-size: 1.06rem;
     font-weight: 700;
     margin: 22px 0 8px;
@@ -739,8 +768,9 @@
     color: var(--text-primary);
   }
   .md-content code {
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
     font-size: 1.0em;
+    font-weight: 500;
     background: var(--surface-soft);
     padding: 0.14em 0.42em;
     border-radius: 6px;
@@ -764,6 +794,7 @@
     background: transparent !important;
     border: none;
     font-size: 1.0em;
+    font-weight: 500;
     line-height: 1.65;
     white-space: pre;
   }
@@ -1186,7 +1217,7 @@
   .comment-card-section {
     font-size: 0.75rem;
     color: var(--text-muted);
-    font-family: var(--font-sans);
+    font-family: var(--font-mono);
   }
   .comment-card-context {
     font-size: 0.75rem;
@@ -1666,7 +1697,7 @@
       </div>
       <span class="theme-switch-label">Light</span>
     </div>
-    <span id="sessionInfo" style="font-family: var(--font-sans); font-size: 0.78rem;"></span>
+    <span id="sessionInfo" style="font-family: var(--font-mono); font-size: 0.78rem;"></span>
     <div class="status-dot" id="statusDot"></div>
     <span id="statusText">Connected</span>
   </div>
