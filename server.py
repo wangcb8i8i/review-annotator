@@ -32,10 +32,40 @@ from urllib.parse import urlparse, unquote
 # ── Configuration ────────────────────────────────────────────
 
 CLAUDE_DIR = Path.home() / ".claude"
-PLANS_DIR = CLAUDE_DIR / "plans"
-COMMENTS_DIR = PLANS_DIR / ".reviews"
+DEFAULT_PLANS_DIR = CLAUDE_DIR / "plans"
 INDEX_HTML = Path(__file__).parent / "index.html"
 RES_DIR = Path(__file__).parent / "res"
+
+app_state = {
+    "plans_dir": DEFAULT_PLANS_DIR,
+    "comments_dir": DEFAULT_PLANS_DIR / ".reviews",
+}
+state_lock = threading.Lock()
+
+
+def get_plans_dir() -> Path:
+    return app_state["plans_dir"]
+
+
+def get_comments_dir() -> Path:
+    return app_state["comments_dir"]
+
+
+def set_plans_dir(path_str: str) -> dict:
+    next_dir = Path(path_str).expanduser().resolve()
+    if not next_dir.exists():
+        raise ValueError("directory does not exist")
+    if not next_dir.is_dir():
+        raise ValueError("path is not a directory")
+
+    comments_dir = next_dir / ".reviews"
+    comments_dir.mkdir(exist_ok=True)
+
+    with state_lock:
+        app_state["plans_dir"] = next_dir
+        app_state["comments_dir"] = comments_dir
+
+    return {"plansDir": str(next_dir)}
 
 # ── SSE Client Registry ─────────────────────────────────────
 
@@ -62,13 +92,10 @@ def broadcast_sse(event: str, data: dict):
 class FileWatcher(threading.Thread):
     """Polls directories for .md file changes and broadcasts SSE events."""
 
-    def __init__(self, dirs: list[Path], interval: float = 1.0):
+    def __init__(self, interval: float = 1.0):
         super().__init__(daemon=True)
-        self.dirs = dirs
         self.interval = interval
         self._snapshots: dict[Path, dict[str, float]] = {}
-        for d in dirs:
-            self._snapshots[d] = self._scan(d)
 
     @staticmethod
     def _scan(directory: Path) -> dict[str, float]:
@@ -85,29 +112,32 @@ class FileWatcher(threading.Thread):
     def run(self):
         while True:
             time.sleep(self.interval)
-            for d in self.dirs:
+            for d in [get_plans_dir(), get_comments_dir()]:
                 current = self._scan(d)
                 prev = self._snapshots.get(d, {})
-                # Detect new or modified files
                 for name, mtime in current.items():
                     if name not in prev or prev[name] != mtime:
                         broadcast_sse("file-change", {
                             "dir": d.name, "file": name, "event": "change"
                         })
-                # Detect deleted files
                 for name in set(prev) - set(current):
                     broadcast_sse("file-change", {
                         "dir": d.name, "file": name, "event": "delete"
                     })
                 self._snapshots[d] = current
 
+            active_dirs = {get_plans_dir(), get_comments_dir()}
+            stale_dirs = [d for d in self._snapshots if d not in active_dirs]
+            for d in stale_dirs:
+                del self._snapshots[d]
+
 
 # ── Plan & Comment Operations ────────────────────────────────
 
 def list_plans() -> list[dict]:
     plans = []
-    if PLANS_DIR.is_dir():
-        for f in PLANS_DIR.iterdir():
+    if get_plans_dir().is_dir():
+        for f in get_plans_dir().iterdir():
             if f.suffix == ".md":
                 stat = f.stat()
                 comments = load_comments(f.name)
@@ -126,7 +156,7 @@ def list_plans() -> list[dict]:
 
 
 def get_plan(plan_id: str) -> dict | None:
-    fp = PLANS_DIR / f"{plan_id}.md"
+    fp = get_plans_dir() / f"{plan_id}.md"
     if not fp.exists():
         return None
     stat = fp.stat()
@@ -143,7 +173,7 @@ def get_plan(plan_id: str) -> dict | None:
 
 
 def comments_file(plan_filename: str) -> Path:
-    return COMMENTS_DIR / plan_filename.replace(".md", ".comments.json")
+    return get_comments_dir() / plan_filename.replace(".md", ".comments.json")
 
 
 def load_comments(plan_filename: str) -> list[dict]:
@@ -398,7 +428,7 @@ def build_comment_removal_pattern(comment: dict) -> re.Pattern:
 
 def remove_comment_from_plan(plan_id: str, comment: dict):
     """Remove an injected review comment block from the plan .md file."""
-    fp = PLANS_DIR / f"{plan_id}.md"
+    fp = get_plans_dir() / f"{plan_id}.md"
     if not fp.exists():
         return
 
@@ -429,7 +459,7 @@ def inject_comment_into_plan(plan_id: str, comment: dict):
     For section-level comments, the comment is appended under the Review Comments
     section at the bottom of the file.
     """
-    fp = PLANS_DIR / f"{plan_id}.md"
+    fp = get_plans_dir() / f"{plan_id}.md"
     if not fp.exists():
         return
 
@@ -497,7 +527,7 @@ def inject_comment_into_plan(plan_id: str, comment: dict):
 # ── Latest Session Info ──────────────────────────────────────
 
 def get_latest_session() -> dict | None:
-    plans_dir = str(PLANS_DIR)
+    plans_dir = str(get_plans_dir())
     projects_dir = CLAUDE_DIR / "projects"
     if not projects_dir.is_dir():
         return {"plansDir": plans_dir}
@@ -720,6 +750,16 @@ class PlanReviewerHandler(BaseHTTPRequestHandler):
                 self.send_json({"error": str(e)}, 400)
             return
 
+        if path == "/api/session/plans-dir":
+            try:
+                data = json.loads(self.read_body())
+                result = set_plans_dir(data["plansDir"])
+                broadcast_sse("session-changed", {"plansDir": result["plansDir"]})
+                self.send_json(result)
+            except Exception as e:
+                self.send_json({"error": str(e)}, 400)
+            return
+
         # API: hook trigger
         if path == "/api/hook-trigger":
             try:
@@ -736,23 +776,22 @@ class PlanReviewerHandler(BaseHTTPRequestHandler):
 # ── Main ─────────────────────────────────────────────────────
 
 def main():
-    global PLANS_DIR, COMMENTS_DIR
-
     parser = argparse.ArgumentParser(description="Claude Code Plan Reviewer")
     parser.add_argument("--port", type=int, default=int(os.environ.get("PLAN_REVIEWER_PORT", 23456)))
     parser.add_argument("--plans-dir")
     args = parser.parse_args()
 
-    if args.plans_dir:
-        PLANS_DIR = Path(args.plans_dir).expanduser()
-        COMMENTS_DIR = PLANS_DIR / ".reviews"
+    initial_plans_dir = Path(args.plans_dir).expanduser().resolve() if args.plans_dir else DEFAULT_PLANS_DIR.resolve()
+    initial_comments_dir = initial_plans_dir / ".reviews"
 
-    # Ensure directories exist
-    PLANS_DIR.mkdir(parents=True, exist_ok=True)
-    COMMENTS_DIR.mkdir(parents=True, exist_ok=True)
+    with state_lock:
+        app_state["plans_dir"] = initial_plans_dir
+        app_state["comments_dir"] = initial_comments_dir
 
-    # Start file watcher
-    watcher = FileWatcher([PLANS_DIR, COMMENTS_DIR])
+    initial_plans_dir.mkdir(parents=True, exist_ok=True)
+    initial_comments_dir.mkdir(parents=True, exist_ok=True)
+
+    watcher = FileWatcher()
     watcher.start()
 
     # Start HTTP server
@@ -768,8 +807,8 @@ def main():
 ║                                              ║
 ║   Open: http://localhost:{args.port}               ║
 ║                                              ║
-║   Plans:   {PLANS_DIR}
-║   Reviews: {COMMENTS_DIR}
+║   Plans:   {get_plans_dir()}
+║   Reviews: {get_comments_dir()}
 ║                                              ║
 ║   Ctrl+C to stop                             ║
 ╚══════════════════════════════════════════════╝

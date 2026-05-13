@@ -89,7 +89,7 @@
   html[data-theme="light"] {
     --bg-primary: #f5f4f2;
     --bg-secondary: rgba(255, 255, 254, 0.84);
-    --bg-tertiary: #ebe9e4;
+    --bg-tertiary: #fffefa;
     --bg-hover: #e1ddd6;
     --border-primary: rgba(92, 93, 103, 0.14);
     --border-accent: #4f7cff;
@@ -213,6 +213,7 @@
     color: var(--accent-blue);
   }
   .topbar-logo {
+    position: relative;
     justify-self: start;
     display: inline-flex;
     align-items: center;
@@ -230,6 +231,16 @@
     color: var(--text-primary);
     letter-spacing: -0.03em;
   }
+  .topbar-logo-edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+    flex: 0 0 auto;
+  }
   .topbar-logo-text {
     min-width: 0;
     overflow: hidden;
@@ -240,6 +251,32 @@
     font-weight: 600;
     letter-spacing: 0;
     color: var(--text-primary);
+    flex: 1 1 auto;
+  }
+  .directory-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: min(560px, 70vw);
+    padding: 10px 12px;
+    border: 1px solid var(--border-primary);
+    border-radius: 14px;
+    background: var(--surface-elevated);
+    box-shadow: var(--shadow-lg);
+    z-index: 30;
+  }
+  .directory-popover-input {
+    width: 100%;
+    min-width: 0;
+    border: 0;
+    outline: none;
+    background: transparent;
+    color: var(--text-primary);
+    font-size: 0.78rem;
+    line-height: 1.2;
+    font-weight: 600;
+    letter-spacing: 0;
+    font-family: var(--font-mono);
   }
   .topbar-logo img {
     width: 22px;
@@ -1663,9 +1700,14 @@
 
 <!-- TOP BAR -->
 <div class="topbar">
-  <div class="topbar-logo">
-    <img src="res/icon.svg" alt="Plan Viewer" width="24" height="24">
+  <div class="topbar-logo" id="directorySwitcher">
+    <button class="topbar-logo-edit" id="directoryEditBtn" type="button" title="Edit monitored directory" aria-label="Edit monitored directory">
+      <img src="res/icon.svg" alt="Plan Viewer" width="24" height="24">
+    </button>
     <span class="topbar-logo-text" id="currentDirectoryLabel">Plan Viewer</span>
+    <div class="directory-popover" id="directoryPopover" hidden>
+      <input class="directory-popover-input" id="currentDirectoryInput" type="text" spellcheck="false" placeholder="/absolute/path">
+    </div>
   </div>
   <div class="topbar-plan">
     <div class="topbar-plan-meta">
@@ -2195,6 +2237,77 @@ async function api(path, options = {}) {
     ...options
   });
   return res.json();
+}
+
+function closeDirectoryPopover() {
+  const popover = document.getElementById('directoryPopover');
+  if (!popover) return;
+  popover.hidden = true;
+}
+
+function openDirectoryPopover() {
+  const label = document.getElementById('currentDirectoryLabel');
+  const input = document.getElementById('currentDirectoryInput');
+  const popover = document.getElementById('directoryPopover');
+  if (!label || !input || !popover) return;
+  input.value = label.textContent || '';
+  popover.hidden = false;
+  requestAnimationFrame(() => {
+    input.focus();
+    input.select();
+  });
+}
+
+async function reloadPlansForDirectorySwitch() {
+  currentPlanId = null;
+  currentPlan = null;
+  lastPlanListSignature = '';
+  lastRenderedContentSignature = '';
+  lastRenderedCommentsSignature = '';
+  lastRenderedSelectionSignature = '';
+  document.getElementById('emptyState').style.display = 'flex';
+  document.getElementById('planView').style.display = 'none';
+  document.getElementById('mdContent').innerHTML = '';
+  document.getElementById('commentsList').innerHTML = '';
+  const plans = await loadPlanList();
+  if (plans && plans.length > 0) {
+    await loadPlan(plans[0].id);
+  }
+}
+
+async function submitDirectoryEditing() {
+  const input = document.getElementById('currentDirectoryInput');
+  const label = document.getElementById('currentDirectoryLabel');
+  if (!input || !label) return;
+
+  const nextDir = input.value.trim();
+  const currentDir = label.textContent?.trim() || '';
+
+  if (!nextDir) {
+    showToast('Directory cannot be empty');
+    return;
+  }
+
+  if (nextDir === currentDir) {
+    closeDirectoryPopover();
+    return;
+  }
+
+  const result = await api('/session/plans-dir', {
+    method: 'POST',
+    body: JSON.stringify({ plansDir: nextDir })
+  });
+
+  if (result?.error) {
+    showToast(`Switch failed: ${result.error}`);
+    return;
+  }
+
+  label.textContent = result.plansDir;
+  label.title = result.plansDir;
+  closeDirectoryPopover();
+  await reloadPlansForDirectorySwitch();
+  showToast('Monitoring directory updated');
 }
 
 // ===== PLAN LIST =====
@@ -3114,6 +3227,37 @@ async function init() {
   });
 
   connectSSE();
+
+  document.getElementById('directoryEditBtn')?.addEventListener('click', (e) => {
+    e.stopPropagation();
+    const popover = document.getElementById('directoryPopover');
+    if (!popover) return;
+    if (!popover.hidden) {
+      closeDirectoryPopover();
+      return;
+    }
+    openDirectoryPopover();
+  });
+  document.getElementById('currentDirectoryInput')?.addEventListener('keydown', async (e) => {
+    if (e.key === 'Enter') {
+      e.preventDefault();
+      await submitDirectoryEditing();
+      return;
+    }
+    if (e.key === 'Escape') {
+      e.preventDefault();
+      closeDirectoryPopover();
+    }
+  });
+  document.addEventListener('click', (e) => {
+    const switcher = document.getElementById('directorySwitcher');
+    const popover = document.getElementById('directoryPopover');
+    if (!switcher || !popover || popover.hidden) return;
+    if (!switcher.contains(e.target)) {
+      closeDirectoryPopover();
+    }
+  });
+
   const plans = await loadPlanList();
   
   // Load session info
