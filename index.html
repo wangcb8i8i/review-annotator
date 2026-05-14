@@ -46,27 +46,27 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg-primary: #070b14;
-    --bg-secondary: rgba(13, 18, 28, 0.92);
-    --bg-tertiary: #151b24;
-    --bg-hover: #1e242e;
-    --border-primary: #343b45;
-    --border-accent: #9a9dff;
-    --text-primary: #e6ebf5;
-    --text-secondary: #d2d9e6;
-    --text-muted: #a5afc0;
-    --accent-blue: #9a9dff;
-    --accent-green: #00ab93;
-    --accent-orange: #f47700;
-    --accent-red: #f14d4c;
-    --accent-purple: #8b8fff;
-    --accent-cyan: #4bc7bd;
-    --comment-bg: rgba(20, 26, 35, 0.96);
-    --app-glow: radial-gradient(circle at top center, rgba(154, 157, 255, 0.09), transparent 30%), linear-gradient(180deg, #070b14 0%, #0b111a 100%);
-    --surface-elevated: rgba(18, 24, 34, 0.94);
-    --surface-panel: rgba(21, 27, 36, 0.98);
-    --surface-soft: rgba(154, 157, 255, 0.06);
-    --surface-strong: rgba(154, 157, 255, 0.12);
+    --bg-primary: #181d22;
+    --bg-secondary: rgba(29, 34, 40, 0.92);
+    --bg-tertiary: #21272d;
+    --bg-hover: #2b3239;
+    --border-primary: #3a434b;
+    --border-accent: #748da3;
+    --text-primary: #e7edf3;
+    --text-secondary: #c8d1db;
+    --text-muted: #8f9ba7;
+    --accent-blue: #7e98ae;
+    --accent-green: #5f9d8f;
+    --accent-orange: #c68b58;
+    --accent-red: #c56d73;
+    --accent-purple: #6e8097;
+    --accent-cyan: #6ea4aa;
+    --comment-bg: rgba(31, 37, 43, 0.96);
+    --app-glow: radial-gradient(circle at top center, rgba(126, 152, 174, 0.1), transparent 34%), linear-gradient(180deg, #171c21 0%, #1c2228 54%, #21272d 100%);
+    --surface-elevated: rgba(29, 34, 40, 0.94);
+    --surface-panel: rgba(33, 39, 45, 0.98);
+    --surface-soft: rgba(126, 152, 174, 0.08);
+    --surface-strong: rgba(126, 152, 174, 0.14);
     --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.14);
     --shadow-md: 0 12px 28px rgba(0, 0, 0, 0.18);
     --shadow-lg: 0 16px 36px rgba(0, 0, 0, 0.22);
@@ -1299,7 +1299,11 @@
 
   html:not([data-theme="light"]) .topbar-logo,
   html:not([data-theme="light"]) .topbar-status {
-    background: rgba(16, 21, 31, 0.88);
+    background: rgba(26, 31, 37, 0.9);
+  }
+
+  html:not([data-theme="light"]) .topbar-logo img {
+    background: linear-gradient(135deg, rgba(126, 152, 174, 0.2), rgba(110, 164, 170, 0.1));
   }
 
   html:not([data-theme="light"]) .sidebar,
@@ -1310,7 +1314,7 @@
   }
 
   html:not([data-theme="light"]) .document-surface {
-    background: linear-gradient(180deg, rgba(17, 22, 32, 0.94), rgba(13, 18, 28, 0.92));
+    background: linear-gradient(180deg, rgba(35, 41, 47, 0.96), rgba(28, 33, 39, 0.93));
   }
 
   html:not([data-theme="light"]) .sidebar-collapse-btn,
@@ -1318,37 +1322,41 @@
   html:not([data-theme="light"]) .sidebar-view-btn,
   html:not([data-theme="light"]) .toolbar-btn,
   html:not([data-theme="light"]) .comment-card-actions button {
-    background: rgba(154, 157, 255, 0.05);
+    background: rgba(126, 152, 174, 0.06);
   }
 
   html:not([data-theme="light"]) .plan-item {
-    background: rgba(154, 157, 255, 0.04);
+    background: rgba(126, 152, 174, 0.05);
     box-shadow: inset 0 1px 0 rgba(255,255,255,0.015);
   }
 
+  html:not([data-theme="light"]) .sidebar-view-btn.active {
+    box-shadow: none;
+  }
+
   html:not([data-theme="light"]) .plan-item.active {
-    background: rgba(154, 157, 255, 0.1);
-    border-color: rgba(154, 157, 255, 0.28);
+    background: rgba(126, 152, 174, 0.12);
+    border-color: rgba(126, 152, 174, 0.3);
     box-shadow: 0 12px 30px rgba(0, 0, 0, 0.2);
   }
 
   html:not([data-theme="light"]) .outline-item.active {
     color: var(--accent-blue);
-    background: rgba(154, 157, 255, 0.12);
+    background: rgba(126, 152, 174, 0.14);
   }
 
   html:not([data-theme="light"]) .md-content code {
-    background: rgba(25, 32, 44, 0.96);
-    border-color: rgba(68, 77, 94, 0.72);
+    background: rgba(35, 41, 47, 0.96);
+    border-color: rgba(77, 89, 100, 0.72);
   }
 
   html:not([data-theme="light"]) .md-content pre {
-    background: #0d1117 !important;
-    border-color: rgba(52, 59, 69, 0.9);
+    background: #1b2026 !important;
+    border-color: rgba(58, 67, 75, 0.92);
   }
 
   html:not([data-theme="light"]) .md-content blockquote {
-    background: rgba(154, 157, 255, 0.035);
+    background: rgba(126, 152, 174, 0.06);
     border-left-color: var(--accent-blue);
     color: var(--text-secondary);
   }
@@ -1356,30 +1364,30 @@
   html:not([data-theme="light"]) .md-content th,
   html:not([data-theme="light"]) .md-content td,
   html:not([data-theme="light"]) .md-content table {
-    border-color: rgba(52, 59, 69, 0.88);
+    border-color: rgba(58, 67, 75, 0.9);
   }
 
   html:not([data-theme="light"]) .md-content th {
-    background: rgba(154, 157, 255, 0.08);
+    background: rgba(126, 152, 174, 0.1);
   }
 
   html:not([data-theme="light"]) .md-content tr:nth-child(even) td {
-    background: rgba(154, 157, 255, 0.03);
+    background: rgba(126, 152, 174, 0.045);
   }
 
   html:not([data-theme="light"]) .md-content .mermaid {
-    background: linear-gradient(180deg, rgba(154, 157, 255, 0.045), rgba(30, 36, 46, 0.84));
-    border-color: rgba(52, 59, 69, 0.9);
+    background: linear-gradient(180deg, rgba(126, 152, 174, 0.06), rgba(34, 40, 46, 0.88));
+    border-color: rgba(58, 67, 75, 0.9);
   }
 
   html:not([data-theme="light"]) .md-content details {
-    background: rgba(154, 157, 255, 0.05);
-    border-color: rgba(52, 59, 69, 0.9);
+    background: rgba(126, 152, 174, 0.06);
+    border-color: rgba(58, 67, 75, 0.9);
   }
 
   html:not([data-theme="light"]) .comment-trigger {
-    border-color: rgba(154, 157, 255, 0.35);
-    background: rgba(21, 27, 36, 0.98);
+    border-color: rgba(126, 152, 174, 0.38);
+    background: rgba(33, 39, 45, 0.98);
     color: var(--accent-blue);
   }
 
@@ -1391,7 +1399,7 @@
   }
 
   html:not([data-theme="light"]) .comment-card:hover {
-    border-color: rgba(154, 157, 255, 0.28);
+    border-color: rgba(126, 152, 174, 0.28);
   }
 
   html:not([data-theme="light"]) .selection-tooltip {
@@ -1404,12 +1412,12 @@
   }
 
   html:not([data-theme="light"]) .comment-type-badge.comment {
-    background: rgba(154, 157, 255, 0.14);
+    background: rgba(126, 152, 174, 0.14);
     color: var(--accent-blue);
   }
 
   html:not([data-theme="light"]) .comment-type-badge.suggestion {
-    background: rgba(139, 143, 255, 0.14);
+    background: rgba(110, 128, 151, 0.16);
     color: var(--accent-purple);
   }
 
