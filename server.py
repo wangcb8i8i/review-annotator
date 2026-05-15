@@ -572,7 +572,7 @@ class PlanReviewerHandler(BaseHTTPRequestHandler):
     def handle(self):
         try:
             super().handle()
-        except (ConnectionResetError, BrokenPipeError):
+        except (ConnectionResetError, BrokenPipeError, ConnectionAbortedError):
             # Browser closed connection (e.g. SSE disconnect, page refresh) — ignore
             pass
 
@@ -802,16 +802,13 @@ def main():
     server.request_queue_size = 32
 
     print(f"""
-╔══════════════════════════════════════════════╗
-║   🔍 Claude Code Plan Reviewer              ║
-║                                              ║
-║   Open: http://localhost:{args.port}               ║
-║                                              ║
-║   Plans:   {get_plans_dir()}
-║   Reviews: {get_comments_dir()}
-║                                              ║
-║   Ctrl+C to stop                             ║
-╚══════════════════════════════════════════════╝
+╭─ Markdown Review & Annotation
+│
+│ Open: http://localhost:{args.port}
+│ Plans:   {get_plans_dir()}
+│ Reviews: {get_comments_dir()}
+│
+╰─ Ctrl+C to stop
 """)
 
     try:
