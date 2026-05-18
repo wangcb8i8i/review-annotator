@@ -46,11 +46,11 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --bg-primary: #181d22;
-    --bg-secondary: rgba(29, 34, 40, 0.92);
-    --bg-tertiary: #21272d;
-    --bg-hover: #2b3239;
-    --border-primary: #3a434b;
+    --bg-primary: #282c34;
+    --bg-secondary: rgba(40, 44, 52, 0.92);
+    --bg-tertiary: #323842;
+    --bg-hover: #3a424e;
+    --border-primary: #4a5360;
     --border-accent: #748da3;
     --text-primary: #e7edf3;
     --text-secondary: #c8d1db;
@@ -61,10 +61,10 @@
     --accent-red: #c56d73;
     --accent-purple: #6e8097;
     --accent-cyan: #6ea4aa;
-    --comment-bg: rgba(31, 37, 43, 0.96);
-    --app-glow: radial-gradient(circle at top center, rgba(126, 152, 174, 0.1), transparent 34%), linear-gradient(180deg, #171c21 0%, #1c2228 54%, #21272d 100%);
-    --surface-elevated: rgba(29, 34, 40, 0.94);
-    --surface-panel: rgba(33, 39, 45, 0.98);
+    --comment-bg: rgba(45, 49, 58, 0.96);
+    --app-glow: radial-gradient(circle at top center, rgba(126, 152, 174, 0.12), transparent 34%), linear-gradient(180deg, #22262d 0%, #282c34 54%, #323842 100%);
+    --surface-elevated: rgba(40, 44, 52, 0.94);
+    --surface-panel: rgba(50, 56, 66, 0.98);
     --surface-soft: rgba(126, 152, 174, 0.08);
     --surface-strong: rgba(126, 152, 174, 0.14);
     --shadow-sm: 0 6px 18px rgba(0, 0, 0, 0.14);
@@ -467,7 +467,6 @@
   .sidebar-collapse-btn:hover,
   .sidebar-rail-btn:hover {
     color: var(--text-primary);
-    border-color: var(--border-accent);
     background: var(--surface-strong);
   }
   .sidebar-collapse-btn svg,
@@ -496,7 +495,6 @@
   }
   .sidebar-view-btn:hover {
     color: var(--text-primary);
-    border-color: var(--border-accent);
     background: var(--surface-strong);
   }
   .sidebar-view-btn.active {
@@ -711,7 +709,7 @@
   .comments-rail-btn {
     width: 32px;
     height: 32px;
-    border: none;
+    border: 1px solid var(--border-primary);
     border-radius: 10px;
     background: var(--surface-soft);
     color: var(--text-secondary);
@@ -719,12 +717,12 @@
     align-items: center;
     justify-content: center;
     cursor: pointer;
-    transition: background 0.18s ease, color 0.18s ease;
+    transition: color 0.18s ease, background-color 0.18s ease, border-color 0.18s ease, box-shadow 0.18s ease;
   }
   .comments-collapse-btn:hover,
   .comments-rail-btn:hover {
-    background: var(--surface-strong);
     color: var(--text-primary);
+    background: var(--surface-strong);
   }
   .comments-collapse-btn svg,
   .comments-rail-btn svg {
@@ -1320,6 +1318,7 @@
   html:not([data-theme="light"]) .sidebar-collapse-btn,
   html:not([data-theme="light"]) .sidebar-rail-btn,
   html:not([data-theme="light"]) .sidebar-view-btn,
+  html:not([data-theme="light"]) .comments-rail-btn,
   html:not([data-theme="light"]) .toolbar-btn,
   html:not([data-theme="light"]) .comment-card-actions button {
     background: rgba(126, 152, 174, 0.06);
