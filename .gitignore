@@ -20,3 +20,10 @@ Thumbs.db
 # Environment
 .env
 *.log
+.claude
+claude/
+# Local docs
+/docs/
+
+
+plan*.zip
