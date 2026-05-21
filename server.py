@@ -35,6 +35,7 @@ CLAUDE_DIR = Path.home() / ".claude"
 DEFAULT_PLANS_DIR = CLAUDE_DIR / "plans"
 INDEX_HTML = Path(__file__).parent / "index.html"
 RES_DIR = Path(__file__).parent / "res"
+LOG_FILE = Path(__file__).parent / "server.log"
 
 app_state = {
     "plans_dir": DEFAULT_PLANS_DIR,
@@ -577,10 +578,9 @@ class PlanReviewerHandler(BaseHTTPRequestHandler):
             pass
 
     def log_message(self, fmt, *args):
-        # Quieter logging: only errors
-        if args and isinstance(args[0], str) and args[0].startswith("GET /api/events"):
-            return
-        super().log_message(fmt, *args)
+        ts = time.strftime("%Y-%m-%d %H:%M:%S")
+        with open(LOG_FILE, "a", encoding="utf-8") as f:
+            f.write(f"{ts}  {fmt % args}\n")
 
     # ── Helpers ──
 
